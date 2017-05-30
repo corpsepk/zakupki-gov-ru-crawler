@@ -2,6 +2,8 @@
 
 namespace corpsepk\ZakupkiGovRu;
 
+use yii\helpers\VarDumper;
+
 class Crawler
 {
     const DOC_TYPE_LISTSGWS = 'ListsGWS';
@@ -102,6 +104,7 @@ class Crawler
         $this->validate();
 
         $directoryUrls = $this->getRegionDirectoriesUrls();
+
         foreach ($directoryUrls as $directoryUrl) {
             $this->listings[$directoryUrl] = $this->getDirectoryListing($directoryUrl);
         }
@@ -136,7 +139,13 @@ class Crawler
         }
     }
 
-    protected function filterLinks($links) : array
+    /**
+     * Filters file links in array by `dateFrom` - `dateTo` period
+     *
+     * @param array $links
+     * @return array
+     */
+    protected function filterLinks(array $links) : array
     {
         if (empty($links)) {
             return [];
@@ -193,8 +202,7 @@ class Crawler
             throw new \ErrorException("Can not load directory listing from `$url`" . PHP_EOL . "Curl error message: " . curl_error($ch));
         }
 
-        $result = rtrim($result, PHP_EOL);
-        return explode(PHP_EOL, $result);
+        return $this->dirListting2Array($result);
     }
 
     protected function getRegionDirectoriesUrls() : array
@@ -239,6 +247,12 @@ class Crawler
             case self::FZ_223:
                 return self::FZ_223_BASE_URL;
         }
+    }
+
+    protected function dirListting2Array(string $string) : array
+    {
+        $string = rtrim($string, PHP_EOL);
+        return explode(PHP_EOL, $string);
     }
 
     /**

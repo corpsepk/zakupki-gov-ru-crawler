@@ -85,4 +85,33 @@ class CrawlerTest extends \PHPUnit_Framework_TestCase
         $crawler->dateFrom = new \DateTime('now');
         $crawler->getFileLinks();
     }
+
+    public function testDataAndFtpRegionsAreEqual()
+    {
+        $regionsData = require(__DIR__ . '/../src/data/regions.php');
+
+        $url = Crawler::FZ_223_BASE_URL . "/published/";
+        $listing = $this->getDirectoryListing($url);
+        $listing = rtrim($listing, PHP_EOL);
+        $regionsFtp = explode(PHP_EOL, $listing);
+
+        // We do not need `archive` dir
+        if ($key = array_search('archive', $regionsFtp)) {
+            unset($regionsFtp[$key]);
+        }
+
+        $diff = array_merge(array_diff($regionsFtp, $regionsData), array_diff($regionsData, $regionsFtp));
+        $this->assertEmpty($diff);
+    }
+
+    private function getDirectoryListing(string $url) : string
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FTPLISTONLY, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
+    }
 }
