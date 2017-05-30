@@ -1,0 +1,33 @@
+{
+  "name": "corpsepk/zakupki-gov-ru-crawler",
+  "type": "library",
+
+  "description": "zakupki.gov.ru crawler",
+  "keywords": ["zakupki.gov.ru", "crawler"],
+  "license": "MIT",
+  "support": {
+    "source": "https://github.com/corpsepk/corpsepk/zakupki-gov-ru-crawler",
+    "issues": "https://github.com/corpsepk/corpsepk/zakupki-gov-ru-crawler/issues"
+  },
+  "authors": [
+    {
+      "name": "Alexsandr Khramov",
+      "email": "corpsepk@gmail.com"
+    }
+  ],
+
+  "require": {
+    "php": ">=7.1"
+  },
+
+  "require-dev": {
+    "phpunit/phpunit": "~4.0",
+    "scrutinizer/ocular": "~1.1"
+  },
+
+  "autoload": {
+    "psr-4": {
+      "corpsepk\\ZakupkiGovRu\\": "src"
+    }
+  }
+}
