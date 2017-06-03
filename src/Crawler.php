@@ -2,8 +2,6 @@
 
 namespace corpsepk\ZakupkiGovRu;
 
-use yii\helpers\VarDumper;
-
 class Crawler
 {
     const DOC_TYPE_LISTSGWS = 'ListsGWS';
@@ -99,6 +97,8 @@ class Crawler
      */
     protected $listings = [];
 
+    private $_errors = [];
+
     public function getFileLinks()
     {
         $this->validate();
@@ -106,10 +106,11 @@ class Crawler
         $directoryUrls = $this->getRegionDirectoriesUrls();
 
         foreach ($directoryUrls as $directoryUrl) {
-            $this->listings[$directoryUrl] = $this->getDirectoryListing($directoryUrl);
+            $this->listings[$directoryUrl] = $this->getFtpDirectoryListing($directoryUrl);
         }
 
-        return $this->filterLinks($this->listings);
+        $fileNames = $this->filterLinks($this->listings);
+        return $fileNames;
     }
 
     public function validate() : void
@@ -189,7 +190,7 @@ class Crawler
         );
     }
 
-    protected function getDirectoryListing(string $url) : array
+    protected function getFtpDirectoryListing(string $url) : array
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -199,7 +200,8 @@ class Crawler
         curl_close($ch);
 
         if (!$result) {
-            throw new \ErrorException("Can not load directory listing from `$url`" . PHP_EOL . "Curl error message: " . curl_error($ch));
+            $this->addError("Can not load directory listing from `$url`");
+            return [];
         }
 
         return $this->dirListting2Array($result);
@@ -253,6 +255,16 @@ class Crawler
     {
         $string = rtrim($string, PHP_EOL);
         return explode(PHP_EOL, $string);
+    }
+
+    public function addError(string $message) : void
+    {
+        $this->_errors[] = $message;
+    }
+
+    public function getErrors() : array
+    {
+        return $this->_errors;
     }
 
     /**
